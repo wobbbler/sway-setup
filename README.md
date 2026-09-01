@@ -9,9 +9,7 @@ sudo apt update && sudo apt install -y sway swaylock swayidle brightnessctl kitt
 
 ### 2. Перенесите конфиги вручную
 Скопируйте папки из репозитория в `~/.config/`:
-- `sway/` → `~/.config/sway/`
-- `dunst/` → `~/.config/dunst/`
-- `xdg-desktop-portal/` → `~/.config/xdg-desktop-portal/`
+- `~/.config -> /sway/, /dunst/, /xdg-desktop-portal/`
 
 ### 3. Настройка аудио (запускайте уже внутри Sway)
 ```bash
