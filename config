@@ -1,0 +1,241 @@
+# ==============================================================================
+# Sway Configuration File 
+# ==============================================================================
+
+# --- Variables ---
+# $mod: Main modifier key (Super/Win key). Mod1 is Alt, Mod4 is Win.
+set $mod        Mod4
+# Compact title bars: their labels are deliberately hidden below.
+set $font       pango:JetBrains Mono Bold 2
+set $bg_solid   #000000
+set $bar_height 14
+
+# --- Window Appearance & Fonts ---
+font $font
+default_border pixel 1
+title_align center
+titlebar_padding 1 1
+titlebar_border_thickness 1
+
+# Hide window borders adjacent to the screen edges (smart: hides them if there's only one window on the workspace)
+hide_edge_borders smart
+
+# Focus follows mouse movement. When switching containers, the warp feature automatically 
+# snaps the mouse cursor to the center of the newly activated window.
+focus_follows_mouse yes
+mouse_warping container
+
+# --- Environment Setup & Daemons ---
+# Sway may be started outside the login shell, so do not rely on zsh PATH.
+set $user_bin_path $HOME/.local/bin:$HOME/go/bin:/usr/local/bin:/usr/bin:/bin
+
+# IMPORTANT: Import environment variables into systemd and dbus user sessions.
+# Without this, screenshots, screen sharing (pipewire), xdg-desktop-portal,
+# GTK/QT themes, and certain applications will fail to launch or work correctly.
+exec_always systemctl --user set-environment PATH=$user_bin_path
+exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway XDG_SESSION_TYPE=wayland DESKTOP_SESSION=sway SWAYSOCK
+exec_always systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE DESKTOP_SESSION SWAYSOCK
+exec_always systemctl --user set-environment XDG_CURRENT_DESKTOP=sway XDG_SESSION_TYPE=wayland DESKTOP_SESSION=sway
+
+# Restart portals after the Sway environment is imported so screen sharing sees the
+# correct Wayland display and uses xdg-desktop-portal-wlr for screencast.
+exec_always systemctl --user restart xdg-desktop-portal-wlr.service xdg-desktop-portal.service
+
+# Dunst — Lightweight notification daemon
+exec_always ~/.config/sway/scripts/start-dunst.sh
+exec blueman-applet 
+exec_always ~/.config/sway/scripts/start-swayidle.sh
+
+# Cliphist — Clipboard manager (runs via wl-clipboard).
+# Captures both text and images, saving them into a queryable history.
+exec env PATH=$user_bin_path wl-paste --type text --watch cliphist store
+exec env PATH=$user_bin_path wl-paste --type image --watch cliphist store
+
+# Wlsunset — f.lux/redshift alternative for Wayland. Adjusts screen color temperature based on location.
+# Coordinates: 50.45, 30.52 (Kyiv). Night temp: 3300K, Day temp: 6500K.
+exec wlsunset -l 50.45 -L 30.52 -t 3300 -T 6500
+
+# --- Output Configuration ---
+# Output Guide: To get information about connected monitors, their names (e.g., eDP-1, HDMI-A-1),
+# available resolutions, and refresh rates, run this in your terminal: `swaymsg -t get_outputs`
+
+# Default wallpaper for all monitors (*) — solid black color
+output * bg $bg_solid solid_color
+output "eDP-1" resolution 1920x1080@60.014hz position 0 0
+# output "eDP-1" resolution 1920x1080@40.022hz position 0 0
+
+# --- Input & Peripherals ---
+# Input Guide: To list all connected input devices and their exact identifiers, run: `swaymsg -t get_inputs`
+# Official documentation: `man 5 sway-input`
+
+input "type:keyboard" {
+    # altgr-intl allows entering special symbols (e.g., €, ¡, ¿) via the Right Alt key.
+    xkb_layout "us(altgr-intl),ru"
+
+    # grp:win_space_toggle — Switches keyboard layouts using Win + Space.
+    # caps:swapescape — Swaps the Caps Lock and Escape keys (highly convenient for Vim-like editors).
+    xkb_options "grp:win_space_toggle,caps:swapescape"
+}
+
+input "type:touchpad" {
+    dwt enabled                # Disable-While-Typing: Locks the touchpad while typing to prevent accidental clicks.
+    tap enabled                # Tap-to-click (Left Mouse Button) without needing a physical deep-press.
+    natural_scroll enabled     # Natural scrolling (scrolling up moves the content up, smartphone-style).
+    middle_emulation enabled   # Emulates a middle-click when pressing Left and Right click simultaneously.
+    accel_profile adaptive     # Adaptive acceleration for smooth trackpad movement and natural scrolling.
+}
+
+input "type:pointer" {
+    accel_profile flat         # Disables acceleration across all mice for raw precision.
+}
+
+# --- Application Launchers ---
+# bemenu flags: -i (case-insensitive search), --fn (font and size), -p (prompt string, empty here)
+set $bemenu_opts -i --fn "JetBrains Mono Bold 25" -p ""
+bindsym $mod+d       exec bemenu-run $bemenu_opts
+
+# bindcode $mod+55 — Bind via keycode (55 maps to the physical 'V' key). Unlike bindsym,
+# bindcode prevents the shortcut from breaking when switching to non-Latin keyboard layouts.
+# Logic: Shows a compact cliphist picker, decodes the original selection, and copies it back to clipboard.
+bindcode $mod+55      exec env PATH=$user_bin_path ~/.config/sway/scripts/clipboard-menu.sh
+
+bindsym  $mod+b exec blueman-manager
+bindsym  $mod+y exec pavucontrol
+bindsym $mod+u exec --no-startup-id sh -c "flatpak run dev.vencord.Vesktop"
+bindsym $mod+t exec flatpak run com.ayugram.desktop
+
+# --- Window Management & Session ---
+bindsym $mod+q           kill 
+bindsym $mod+f           fullscreen toggle      
+bindsym $mod+w           layout tabbed          
+bindsym $mod+e           layout toggle split    
+bindsym $mod+r           mode "resize"          
+
+mode "resize" {
+    bindsym  h resize shrink width 20px
+    bindsym  j resize grow height 20px
+    bindsym  k resize shrink height 20px
+    bindsym  l resize grow width 20px
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+Shift+c     reload                   
+
+# --- System Includes ---
+include /etc/sway/config.d/*
+
+# Hold $mod to drag floating windows with the mouse (LMB to move, RMB to resize)
+floating_modifier $mod normal
+
+# --- Scratchpad ---
+# The scratchpad is a hidden workspace used to stow windows away in the background.
+bindsym $mod+Shift+minus move scratchpad        
+bindsym $mod+minus       scratchpad show        
+bindsym $mod+Ctrl+minus  move container to workspace current, floating disable
+
+# --- Navigation & Focus ---
+# Vim-style window navigation (h = left, j = down, k = up, l = right)
+bindsym  $mod+h          focus left
+bindsym  $mod+j          focus down
+bindsym  $mod+k          focus up
+bindsym  $mod+l          focus right
+
+# Automatically bounces you back to the previous active workspace if you hit the current workspace shortcut again
+workspace_auto_back_and_forth yes
+
+# Automatically shift focus to any window triggering an "urgent" status flag
+focus_on_window_activation urgent
+
+# --- Moving Containers ---
+# Vim-style window moving
+bindsym  $mod+Shift+h  move left
+bindsym  $mod+Shift+j  move down
+bindsym  $mod+Shift+k  move up
+bindsym  $mod+Shift+l  move right
+
+# --- Workspaces ---
+# Switch to specific workspaces (0-10)
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+
+# Move active window to a specific workspace
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+# --- User Scripts & Custom Binds ---
+bindsym $mod+i        exec ~/.config/sway/scripts/status.sh        
+bindsym $mod+x        exec swaylock -c 000000                      
+bindsym $mod+p        exec ~/.config/sway/scripts/power-menu.sh    
+bindsym $mod+s        exec ~/.config/sway/scripts/media-menu.sh    
+
+# --- Media & Hardware Controls ---
+# The --locked flag allows these keybinds to execute even while the screen is locked via swaylock
+bindsym --locked XF86PowerOff           exec systemctl poweroff
+bindsym --locked XF86Sleep              exec systemctl suspend
+bindsym --locked XF86AudioMute          exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym --locked XF86AudioRaiseVolume   exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym --locked XF86AudioLowerVolume   exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym Print                           exec ~/.config/sway/scripts/media-menu.sh
+
+# Screen Brightness Controls (Requires brightnessctl to be in the 'video' group)
+bindsym --locked XF86MonBrightnessUp    exec brightnessctl set +5%
+bindsym --locked XF86MonBrightnessDown  exec brightnessctl set 5%-
+
+# NOTE: To use brightnessctl without sudo, add your user to the 'video' group: `sudo usermod -aG video $USER`
+
+# --- Window Rules ---
+# Get identifiers for open windows:
+# swaymsg -t get_tree | jq -r '.. | objects | select(.type? == "con" and (.app_id? or .window_properties?.class?)) | "\(.name) app_id=\(.app_id) class=\(.window_properties.class // "")"'
+
+# AyuGram / Telegram-style clients
+for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] floating enable
+for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] resize set 600 900
+for_window [class="AyuGram|ayugram"] floating enable
+for_window [class="AyuGram|ayugram"] resize set 600 900
+
+# Audio and Bluetooth control panels
+for_window [app_id="^(pavucontrol|org[.]pulseaudio[.]pavucontrol)$"] floating enable
+for_window [app_id="^(pavucontrol|org[.]pulseaudio[.]pavucontrol)$"] resize set 760 560
+for_window [app_id="^(blueman-manager|org[.]blueman[.]Manager)$"] floating enable
+for_window [app_id="^(blueman-manager|org[.]blueman[.]Manager)$"] resize set 760 560
+for_window [app_id="^(nautilus|org[.]gnome[.]Nautilus)$"] floating enable
+for_window [app_id="^(nautilus|org[.]gnome[.]Nautilus)$"] resize set 900 600
+
+# Common dialogs
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [app_id=".*"] inhibit_idle fullscreen
+for_window [class=".*"] inhibit_idle fullscreen
+
+# Vesktop (Discord client)
+for_window [app_id="^(dev[.]vencord[.]Vesktop|Vesktop|vesktop)$"] floating enable
+for_window [app_id="^(dev[.]vencord[.]Vesktop|Vesktop|vesktop)$"] resize set 1000 750
+for_window [class="^(Vesktop|vesktop)$"] floating enable
+for_window [class="^(Vesktop|vesktop)$"] resize set 1000 750
+
+# Компактные тёмно-серые вкладки с холодным синим акцентом.
+client.focused            #7084a5 #3d485a #3d485a #8295b6 #3d485a
+client.focused_tab_title  #7084a5 #3d485a #3d485a #8295b6 #3d485a
+client.focused_inactive   #3f4856 #242a33 #242a33 #303846 #242a33
+client.unfocused          #303640 #1c2128 #1c2128 #262d36 #1c2128
+client.urgent             #a65a50 #402725 #402725 #7f3d38 #402725
+client.placeholder        #303640 #1c2128 #1c2128 #262d36 #1c2128
+client.background         #161a20
