@@ -1,7 +1,7 @@
 # sway-setup
 
 ### 1. Установка пакетов и зависимостей
-Запустите в терминале (можно без Sway):
+Запустите в терминале:
 
 ```bash
 sudo apt update && sudo apt install -y sway swaylock swayidle brightnessctl kitty fonts-jetbrains-mono bemenu dunst libnotify-bin pipewire wireplumber pipewire-pulse pavucontrol blueman grim slurp jq wl-clipboard wlsunset xdg-desktop-portal xdg-desktop-portal-wlr golang-go && export PATH="$HOME/go/bin:$PATH" && command -v cliphist >/dev/null || go install go.senan.xyz/cliphist@latest && chmod +x ~/.config/sway/scripts/*.sh
