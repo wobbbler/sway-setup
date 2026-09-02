@@ -207,7 +207,7 @@ bindsym --locked XF86MonBrightnessDown  exec brightnessctl set 5%-
 
 # AyuGram / Telegram-style clients
 for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] floating enable
-for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] resize set 600 900
+for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] resize set 600 820
 for_window [class="AyuGram|ayugram"] floating enable
 for_window [class="AyuGram|ayugram"] resize set 600 900
 
