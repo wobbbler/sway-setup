@@ -53,7 +53,7 @@ exec env PATH=$user_bin_path wl-paste --type image --watch cliphist store
 
 # Wlsunset — f.lux/redshift alternative for Wayland. Adjusts screen color temperature based on location.
 # Coordinates: 50.45, 30.52 (Kyiv). Night temp: 3300K, Day temp: 6500K.
-exec wlsunset -l 50.45 -L 30.52 -t 3300 -T 6500
+exec wlsunset -l 50.45 -L 30.52 -t 2500 -T 6500 
 
 # --- Output Configuration ---
 # Output Guide: To get information about connected monitors, their names (e.g., eDP-1, HDMI-A-1),
