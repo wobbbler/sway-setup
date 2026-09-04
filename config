@@ -5,17 +5,13 @@
 # --- Variables ---
 # $mod: Main modifier key (Super/Win key). Mod1 is Alt, Mod4 is Win.
 set $mod        Mod4
-# Compact title bars: their labels are deliberately hidden below.
-set $font       pango:JetBrains Mono Bold 2
+set $font       pango:JetBrains Mono Bold 1
 set $bg_solid   #000000
-set $bar_height 14
+set $term kitty
 
 # --- Window Appearance & Fonts ---
 font $font
-default_border pixel 1
-title_align center
 titlebar_padding 1 1
-titlebar_border_thickness 1
 
 # Hide window borders adjacent to the screen edges (smart: hides them if there's only one window on the workspace)
 hide_edge_borders smart
@@ -39,7 +35,7 @@ exec_always systemctl --user set-environment XDG_CURRENT_DESKTOP=sway XDG_SESSIO
 
 # Restart portals after the Sway environment is imported so screen sharing sees the
 # correct Wayland display and uses xdg-desktop-portal-wlr for screencast.
-exec_always systemctl --user restart xdg-desktop-portal-wlr.service xdg-desktop-portal.service
+exec_always systemctl --user try-restart xdg-desktop-portal-wlr.service xdg-desktop-portal.service
 
 # Dunst — Lightweight notification daemon
 exec_always ~/.config/sway/scripts/start-dunst.sh
@@ -48,8 +44,8 @@ exec_always ~/.config/sway/scripts/start-swayidle.sh
 
 # Cliphist — Clipboard manager (runs via wl-clipboard).
 # Captures both text and images, saving them into a queryable history.
-exec env PATH=$user_bin_path wl-paste --type text --watch cliphist store
-exec env PATH=$user_bin_path wl-paste --type image --watch cliphist store
+exec wl-paste --type text --watch cliphist store
+exec wl-paste --type image --watch cliphist store
 
 # Wlsunset — f.lux/redshift alternative for Wayland. Adjusts screen color temperature based on location.
 # Coordinates: 50.45, 30.52 (Kyiv). Night temp: 3300K, Day temp: 6500K.
@@ -94,11 +90,14 @@ input "type:pointer" {
 set $bemenu_opts -i --fn "JetBrains Mono Bold 25" -p ""
 bindsym $mod+d       exec bemenu-run $bemenu_opts
 
+
+
 # bindcode $mod+55 — Bind via keycode (55 maps to the physical 'V' key). Unlike bindsym,
 # bindcode prevents the shortcut from breaking when switching to non-Latin keyboard layouts.
 # Logic: Shows a compact cliphist picker, decodes the original selection, and copies it back to clipboard.
 bindcode $mod+55      exec env PATH=$user_bin_path ~/.config/sway/scripts/clipboard-menu.sh
 
+bindsym $mod+Return exec $term
 bindsym  $mod+b exec blueman-manager
 bindsym  $mod+y exec pavucontrol
 bindsym $mod+u exec --no-startup-id sh -c "flatpak run dev.vencord.Vesktop"
@@ -193,7 +192,7 @@ bindsym --locked XF86Sleep              exec systemctl suspend
 bindsym --locked XF86AudioMute          exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym --locked XF86AudioRaiseVolume   exec pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindsym --locked XF86AudioLowerVolume   exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym Print                           exec ~/.config/sway/scripts/media-menu.sh
+bindsym --locked Print                  exec ~/.config/sway/scripts/media-menu.sh
 
 # Screen Brightness Controls (Requires brightnessctl to be in the 'video' group)
 bindsym --locked XF86MonBrightnessUp    exec brightnessctl set +5%
@@ -231,9 +230,8 @@ for_window [app_id="^(dev[.]vencord[.]Vesktop|Vesktop|vesktop)$"] resize set 100
 for_window [class="^(Vesktop|vesktop)$"] floating enable
 for_window [class="^(Vesktop|vesktop)$"] resize set 1000 750
 
-# Компактные тёмно-серые вкладки с холодным синим акцентом.
+#tabled
 client.focused            #7084a5 #3d485a #3d485a #8295b6 #3d485a
-client.focused_tab_title  #7084a5 #3d485a #3d485a #8295b6 #3d485a
 client.focused_inactive   #3f4856 #242a33 #242a33 #303846 #242a33
 client.unfocused          #303640 #1c2128 #1c2128 #262d36 #1c2128
 client.urgent             #a65a50 #402725 #402725 #7f3d38 #402725
