@@ -14,7 +14,7 @@ sudo apt update && sudo apt install -y \
   sway swaylock swayidle brightnessctl \
   kitty fonts-jetbrains-mono bemenu dunst libnotify-bin \
   pipewire wireplumber pipewire-pulse pavucontrol \
-  blueman grim slurp jq wl-clipboard wlsunset \
+  blueman grim slurp jq wl-clipboard \
   xdg-desktop-portal xdg-desktop-portal-wlr golang-go
 
 export PATH="$HOME/go/bin:$PATH"
