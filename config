@@ -42,7 +42,6 @@ exec_always systemctl --user try-restart xdg-desktop-portal-wlr.service xdg-desk
 exec_always ~/.config/sway/scripts/start-dunst.sh
 exec blueman-applet 
 exec_always ~/.config/sway/scripts/start-swayidle.sh
-exec_always ~/.config/sway/scripts/night-mode.sh
 
 # Cliphist — Clipboard manager (runs via wl-clipboard).
 # Captures both text and images, saving them into a queryable history.
