@@ -209,7 +209,7 @@ bindsym --locked XF86MonBrightnessDown  exec brightnessctl set 5%-
 for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] floating enable
 for_window [app_id="^(com[.]ayugram[.]desktop|AyuGram|ayugram)$"] resize set 600 820
 for_window [class="AyuGram|ayugram"] floating enable
-for_window [class="AyuGram|ayugram"] resize set 600 900
+for_window [class="AyuGram|ayugram"] resize set 600 820
 
 # Audio and Bluetooth control panels
 for_window [app_id="^(pavucontrol|org[.]pulseaudio[.]pavucontrol)$"] floating enable
@@ -217,7 +217,7 @@ for_window [app_id="^(pavucontrol|org[.]pulseaudio[.]pavucontrol)$"] resize set 
 for_window [app_id="^(blueman-manager|org[.]blueman[.]Manager)$"] floating enable
 for_window [app_id="^(blueman-manager|org[.]blueman[.]Manager)$"] resize set 760 560
 for_window [app_id="^(nautilus|org[.]gnome[.]Nautilus)$"] floating enable
-for_window [app_id="^(nautilus|org[.]gnome[.]Nautilus)$"] resize set 900 600
+for_window [app_id="^(nautilus|org[.]gnome[.]Nautilus)$"] resize set 760 560
 
 # Common dialogs
 for_window [window_role="pop-up"] floating enable
