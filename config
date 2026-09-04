@@ -11,6 +11,7 @@ set $term kitty
 
 # --- Window Appearance & Fonts ---
 font $font
+default_border pixel 1
 titlebar_padding 1 1
 
 # Hide window borders adjacent to the screen edges (smart: hides them if there's only one window on the workspace)
@@ -237,3 +238,4 @@ client.unfocused          #303640 #1c2128 #1c2128 #262d36 #1c2128
 client.urgent             #a65a50 #402725 #402725 #7f3d38 #402725
 client.placeholder        #303640 #1c2128 #1c2128 #262d36 #1c2128
 client.background         #161a20
+
